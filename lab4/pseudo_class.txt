@@ -1,0 +1,27 @@
+class Common_Alg()
+    private:
+        int numbers[1000]    
+        fill numbers with random 1–1000
+
+    public:
+        void
+            outputAll()
+            sumAll()
+            odd()
+            even()
+            linearSearch()
+            middle()
+            first()
+            last()
+            highest()
+            lowest()
+            bubbleSort()
+            mean()
+
+
+main()
+    create Common_Alg object
+    display menu
+    get user selection
+    call selected method
+    
