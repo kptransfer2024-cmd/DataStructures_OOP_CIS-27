@@ -1,25 +1,23 @@
 class Common_Alg()
-    private:
-        int numbers[1000]    
+    def init():
+        numbers[1000]    
         fill numbers with random 1–1000
-
-    public:
-        void
-            outputAll()
-            sumAll()
-            odd()
-            even()
-            linearSearch()
-            middle()
-            first()
-            last()
-            highest()
-            lowest()
-            bubbleSort()
-            mean()
+    
+    def outputAll()
+    def sumAll()
+    def odd()
+    def even()
+    def linearSearch()
+    def middle()
+    def first()
+    def last()
+    def highest()
+    def lowest()
+    def bubbleSort()
+    def mean()
 
 
-main()
+def main():
     create Common_Alg object
     display menu
     get user selection
