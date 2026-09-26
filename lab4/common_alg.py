@@ -64,7 +64,7 @@ class Common_Alg:
         location = 0
         for i in range(1, 1000):
             if self.numbers[i] > highest:
-                highest = self. numbers[i]
+                highest = self.numbers[i]
                 location = i
         print("The highest value is:", highest)
         print("The index of the highest value is:", location)
