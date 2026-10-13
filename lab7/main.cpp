@@ -27,6 +27,29 @@ class My_String {
             cout << "The string is: " << str << endl;
         }
 
+        void isAlpha(){
+            int i = 0;
+            while (str[i]){
+                if (!((str[i] >= 65 && str[i] <= 90) || (str[i] >= 97 && str[i] <= 122))){
+                    cout << "The string is NOT alphabetic." << endl;
+                    return;
+                }
+                i++;
+            }
+            cout << "The string is alphabetic." << endl;
+        }
+
+        void toLower(){
+            int i = 0;
+            while (str[i]){
+                if (str[i] >= 65 && str[i] <= 90){
+                    str[i] += 32;
+                }
+                i++;
+            }
+            cout << "The string in lowercase is: " << str << endl;
+        }
+        
         void toUpper(){
             int i = 0;
             while (str[i]){
@@ -55,9 +78,14 @@ int main() {
 
     cout << "The length of the string is: " << s.length() << endl;
     s.display();
+    cout << endl;
 
+    s.isAlpha();
     s.toUpper();
-    s.display();
+    cout << endl;
+
+    s.toLower();
+    cout << endl;
 
     cout << "Enter a character to add to the end of the string: ";
     char c;
