@@ -10,7 +10,7 @@ private:
 public:
     Grid();
 
-    void draw() const;
+void draw() const;
     bool isInside(int row, int col) const;
 
     int getWidth() const;
