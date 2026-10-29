@@ -17,6 +17,15 @@ private:
     int steps;
     string status;
 
+    int mode;
+    double lastAutoMove;
+
+    void manualDirection(int& rowChange, int& colChange);
+    bool randomDirection(int& rowChange, int& colChange);
+    bool greedyDirection(int& rowChange, int& colChange);
+    bool bfsDirection(int& rowChange, int& colChange);
+    int moveSnake(int rowChange, int colChange);
+
 public:
     Game();
 
