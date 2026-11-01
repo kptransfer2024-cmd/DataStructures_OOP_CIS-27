@@ -9,6 +9,9 @@
 #include "gameState.h"
 #include <queue>
 #include <utility>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
 using namespace std;
 
 Game::Game() {
@@ -55,6 +58,28 @@ void Game::reset() {
 }
 
 
+bool Game::isSafeCell(int row, int col) {
+    if (!board.isInside(row, col)) {
+        return false;
+    }
+
+    bool eatNext = (row == food.getRow() && col == food.getCol());
+
+    for (int i = 0; i < snake.getBodyLength(); i++) {
+        if (row == snake.getBodyRow()[i] && col == snake.getBodyCol()[i]) {
+            if (i == snake.getBodyLength() - 1 && !eatNext) {
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+
+    return true;
+}
+
+
 void Game::manualDirection(int& rowChange, int& colChange) {
     if (IsKeyPressed(KEY_UP)) {
         rowChange = -1;
@@ -79,20 +104,7 @@ bool Game::randomDirection(int& rowChange, int& colChange) {
         int newRow = snake.getRow() + rowDirections[i];
         int newCol = snake.getCol() + colDirections[i];
 
-        if (!board.isInside(newRow, newCol)) {
-            continue;
-        }
-
-        bool blocked = false;
-        for (int j = 0; j < snake.getBodyLength(); j++) {
-            if (newRow == snake.getBodyRow()[j] &&
-                newCol == snake.getBodyCol()[j]) {
-                blocked = true;
-                break;
-            }
-        }
-
-        if (!blocked) {
+        if (isSafeCell(newRow, newCol)) {
             validDirections[validCount] = i;
             validCount++;
         }
@@ -105,13 +117,14 @@ bool Game::randomDirection(int& rowChange, int& colChange) {
     int chosen = validDirections[rand() % validCount];
     rowChange = rowDirections[chosen];
     colChange = colDirections[chosen];
+
     return true;
 }
 
 
 bool Game::greedyDirection(int& rowChange, int& colChange) {
-    int rowDirections[4] = {0, 0, -1, 1};
-    int colDirections[4] = {-1, 1, 0, 0};
+    int rowDirections[4] = {-1, 1, 0, 0};
+    int colDirections[4] = {0, 0, -1, 1};
     int bestDistance = 1000000;
     bool found = false;
 
@@ -119,13 +132,7 @@ bool Game::greedyDirection(int& rowChange, int& colChange) {
         int newRow = snake.getRow() + rowDirections[i];
         int newCol = snake.getCol() + colDirections[i];
 
-        if (!board.isInside(newRow, newCol)) {
-            continue;
-        }
-
-        if (snake.getBodyLength() > 0 &&
-            newRow == snake.getBodyRow()[0] &&
-            newCol == snake.getBodyCol()[0]) {
+        if (!isSafeCell(newRow, newCol)) {
             continue;
         }
 
@@ -190,25 +197,11 @@ bool Game::bfsDirection(int& rowChange, int& colChange) {
             int newRow = row + rowDirections[i];
             int newCol = col + colDirections[i];
 
-            if (!board.isInside(newRow, newCol)) {
+            if (!isSafeCell(newRow, newCol)) {
                 continue;
             }
 
             if (visited[newRow][newCol]) {
-                continue;
-            }
-
-            bool blocked = false;
-
-            for (int j = 0; j < snake.getBodyLength(); j++) {
-                if (newRow == snake.getBodyRow()[j] &&
-                    newCol == snake.getBodyCol()[j]) {
-                    blocked = true;
-                    break;
-                }
-            }
-
-            if (blocked) {
                 continue;
             }
 
@@ -253,6 +246,77 @@ bool Game::bfsDirection(int& rowChange, int& colChange) {
 }
 
 
+void Game::runSimulation() {
+    int oldMode = mode;
+
+    for (int algorithm = 1; algorithm <= 3; algorithm++) {
+        mode = algorithm;
+        clock_t start = clock();
+        for (int i = 0; i < 100; i++) {
+            reset();
+
+            while (status == "RUNNING") {
+                int rowChange = 0;
+                int colChange = 0;
+                bool found = false;
+
+                if (mode == 1) {
+                    found = randomDirection(rowChange, colChange);
+                }
+                else if (mode == 2) {
+                    found = greedyDirection(rowChange, colChange);
+                }
+                else if (mode == 3) {
+                    found = bfsDirection(rowChange, colChange);
+                }
+
+                if (!found) {
+                    status = "DEAD";
+                    break;
+                }
+
+                moveSnake(rowChange, colChange);
+                update();
+            }
+
+            cout << "Algorithm: " << mode << " | Run: " << i + 1 << " | Steps: " << steps << " | Food: " << foodEaten << " | Status: " << status << endl;
+            
+            int index = (algorithm - 1) * 100 + i;
+
+            simSteps[index] = steps;
+            simFood[index] = foodEaten;
+            simStatus[index] = status;
+        }
+        clock_t end = clock();
+        string algName;
+        if (mode == 1) {
+            algName = "randomDirection";
+        }
+        else if (mode == 2) {
+            algName = "greedyDirection";
+        }
+        else if (mode == 3) {
+            algName = "bfsDirection";
+        }
+        else {
+            algName = "error, no algorithm picked";
+        }
+
+        cout << endl;
+        cout << endl;
+        cout << "ALGO: " << algName << " is done!" <<endl;
+        double timeTaken = double(end - start) / CLOCKS_PER_SEC;
+        cout << algName << " execution time: " << timeTaken * 1000 << " milliseconds" << endl;
+    }
+
+    cout << endl;
+    cout << "simulation is done!" << endl;
+    mode = oldMode;
+    reset();
+}
+
+
+
 int Game::moveSnake(int rowChange, int colChange) {
     if (rowChange == 0 && colChange == 0) {
         return 0;
@@ -293,6 +357,10 @@ int Game::handleInput() {
     }
     else if (IsKeyPressed(KEY_R)) {
         reset();
+        return 0;
+    }
+    else if (IsKeyPressed(KEY_FIVE)) {
+        runSimulation();
         return 0;
 }
 
@@ -399,8 +467,9 @@ void Game::depict() {
     DrawText("2: Random", x + 15, 455, 17, BLACK);
     DrawText("3: Greedy", x + 15, 485, 17, BLACK);
     DrawText("4: BFS", x + 15, 515, 17, BLACK);
+    DrawText("5: Run SIM", x + 15, 545, 17, ORANGE);
 
-    DrawText("R: Restart", x + 15, 545, 17, BLACK);
+    DrawText("R: Restart", x + 15, 575, 17, BLACK);
 
     if (status != "RUNNING") {
         DrawRectangle(105, 220, 390, 165, RAYWHITE);

@@ -98,7 +98,7 @@ int Snake::move(int rowChange, int colChange, const Grid& board) {
 }
 
 void Snake::eat() {
-    cout << "ate it!" << endl;
+    //cout << "ate it!" << endl;
     bodyLength ++;
     bodyRow[bodyLength - 1] = tailRow;
     bodyCol[bodyLength - 1] = tailCol;

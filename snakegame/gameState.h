@@ -19,11 +19,17 @@ private:
 
     int mode;
     double lastAutoMove;
+    int simSteps[300];
+    int simFood[300];
+    string simStatus[300];
 
+
+    bool isSafeCell(int row, int col);
     void manualDirection(int& rowChange, int& colChange);
     bool randomDirection(int& rowChange, int& colChange);
     bool greedyDirection(int& rowChange, int& colChange);
     bool bfsDirection(int& rowChange, int& colChange);
+    void runSimulation();
     int moveSnake(int rowChange, int colChange);
 
 public:
